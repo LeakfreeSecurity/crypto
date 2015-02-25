@@ -6,7 +6,7 @@
 ; Simon is a family of lightweight (balanced feistel) block ciphers optimized for hardware performance, released by the NSA in 2013.
 ; See: http://eprint.iacr.org/2013/404.pdf
 ;
-; The implementation below is SIMON 32/64 with blocksize 32, keysize 64 and 32 rounds and has not been optimized yet.
+; The implementation below is SIMON 32/64 with blocksize 32, keysize 64 and 32 rounds.
 ;
 
 ;
