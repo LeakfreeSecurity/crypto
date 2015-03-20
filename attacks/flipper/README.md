@@ -1,7 +1,7 @@
 # Flipper
 
-** Copyright (C) 2015 - Jos Wetzels.
-** See the file 'LICENSE' for copying permission.
+Copyright (C) 2015 - Jos Wetzels.
+See the file 'LICENSE' for copying permission.
 
 Flipper is a simple python class for aiding in exploitation of bitflipping attacks against blockciphers in CBC, OFB and CTR mode.
 Given any ciphertext, encrypted under CBC, OFB or CTR mode, we can flip arbitrary bits for which we have corresponding known plaintext.
