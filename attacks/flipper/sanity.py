@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-#Copyright (C) 2015 - Jos Wetzels.
+#Copyright (C) 2015 - Jos Wetzels
 #See the file 'LICENSE' for copying permission.
 
 """
@@ -15,35 +15,49 @@ BS = AES.block_size
 pad = lambda s: s + (BS - len(s) % BS) * chr(BS - len(s) % BS) 
 unpad = lambda s : s[0:-ord(s[-1])]
 
-def encrypt(plaintext, key):
-	iv = Random.new().read(BS)
-	aes = AES.new(key, AES.MODE_CBC, iv)
-	return iv + aes.encrypt(pad(plaintext))
+def ctr():
+	return str(0)*16
 
-def decrypt(ciphertext, key):
+def aes(key, mode, iv):
+	if(mode == AES.MODE_CTR):
+		return AES.new(key, mode, iv, counter=ctr)
+	else:
+		return AES.new(key, mode, iv)
+
+def encrypt(plaintext, key, mode):
+	iv = Random.new().read(BS)
+	crypt = aes(key, mode, iv)
+	return iv + crypt.encrypt(pad(plaintext))
+
+def decrypt(ciphertext, key, mode):
 	iv = ciphertext[:BS]
 	ciphertext = ciphertext[BS:]
-	aes = AES.new(key, AES.MODE_CBC, iv)
-	return unpad(aes.decrypt(ciphertext))
+	crypt = aes(key, mode, iv)
+	return unpad(crypt.decrypt(ciphertext))
 
 def sanity_check():
-	plaintext = Random.new().read(2*BS)
-	key = Random.new().read(BS)
-	ciphertext = encrypt(plaintext, key)
+	modes = {"CBC": AES.MODE_CBC,
+		     "OFB": AES.MODE_OFB,
+		     "CTR": AES.MODE_CTR}
 
-	flip = Flipper(BS)
+	for mode in modes:
+		plaintext = Random.new().read(2*BS)
+		key = Random.new().read(BS)
+		ciphertext = encrypt(plaintext, key, modes[mode])
 
-	for i in range(0, len(plaintext)):
-		flipByte = Random.new().read(1)
-		flip.initialize(ciphertext)
-		flip.setKnownPlaintext(i, plaintext[i])
-		flip.flipPlaintext(i, flipByte)
-		mod_ciphertext = flip.finalize()
+		flip = Flipper(BS, mode)
 
-		mod_plaintext = decrypt(mod_ciphertext, key)	
-		
-		if(mod_plaintext[i] != flipByte):
-			return False
+		for i in range(0, len(plaintext)):
+			flipByte = Random.new().read(1)
+			flip.initialize(ciphertext)
+			flip.setKnownPlaintext(i, plaintext[i])
+			flip.flipPlaintext(i, flipByte)
+			mod_ciphertext = flip.finalize()
+
+			mod_plaintext = decrypt(mod_ciphertext, key, modes[mode])	
+			
+			if(mod_plaintext[i] != flipByte):
+				return False
 
 	return True
 
